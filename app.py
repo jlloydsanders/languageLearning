@@ -72,13 +72,34 @@ st.caption(f"Part of Speech: {daily_word['type']}")
 audio_data = get_audio(daily_word["word"])
 st.audio(audio_data, format="audio/mp3")
 
-st.markdown(f"**Translation:** {daily_word['translation']}")
-st.markdown(f"**Pronunciation:** *{daily_word['pronunciation']}*")
+st.divider()
 
-st.info(f"**Example Sentence:** {daily_word['example']}")
+# --- THE ENIGMA PUZZLE ---
+st.markdown("### 🕵️ Decipher the Word")
+st.write("Test your memory before revealing the answer.")
 
-# Audio for the example sentence (Optional, but great for learning!)
-with st.expander("Listen to example sentence"):
+# 1. The Guessing Input
+user_guess = st.text_input("Enter the English translation:", placeholder="Type your guess here...")
+
+# Clean up the true translation for comparison (removes things like "(masculine)")
+target_translation = daily_word['translation'].lower().split(' (')[0]
+
+if user_guess:
+    if user_guess.lower().strip() == target_translation:
+        st.success("Correct! You cracked it. 🎉")
+        st.balloons()
+    else:
+        st.error("Not quite! Try again or unlock the answer below.")
+
+# 2. The Reveal Expander
+with st.expander("🗝️ Unlock Translation & Context"):
+    st.markdown(f"**Translation:** {daily_word['translation']}")
+    st.markdown(f"**Pronunciation:** *{daily_word['pronunciation']}*")
+
+    st.info(f"**Example Sentence:** {daily_word['example']}")
+
+    # Audio for the example sentence
+    st.write("Listen to context:")
     example_audio = get_audio(daily_word["example"])
     st.audio(example_audio, format="audio/mp3")
 
