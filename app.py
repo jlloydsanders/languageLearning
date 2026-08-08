@@ -1,12 +1,13 @@
 import streamlit as st
 from datetime import date
 import random
+from gtts import gTTS
+import io
 
 # Page Configuration
 st.set_page_config(page_title="Palavra do Dia", page_icon="🇵🇹", layout="centered")
 
 # A1 Portuguese Vocabulary Database
-# In a larger app, this could be loaded from a JSON file or a database.
 a1_words = [
     {
         "word": "Bom dia",
@@ -30,9 +31,9 @@ a1_words = [
         "type": "Verb"
     },
     {
-        "word": "Obrigado / Obrigada",
-        "translation": "Thank you (masculine / feminine)",
-        "pronunciation": "oh-bree-GAH-doo / dah",
+        "word": "Obrigado",
+        "translation": "Thank you (masculine)",
+        "pronunciation": "oh-bree-GAH-doo",
         "example": "Muito obrigado pela ajuda.",
         "type": "Expression"
     },
@@ -45,9 +46,16 @@ a1_words = [
     }
 ]
 
+# Function to generate Portuguese audio on the fly
+def get_audio(text):
+    tts = gTTS(text=text, lang='pt')
+    fp = io.BytesIO()
+    tts.write_to_fp(fp)
+    fp.seek(0)
+    return fp
+
 # Generate the Daily Word
 today = date.today()
-# Seed the random choice with today's date so it stays the same all day
 random.seed(today.toordinal())
 daily_word = random.choice(a1_words)
 
@@ -60,10 +68,19 @@ st.divider()
 st.header(daily_word["word"])
 st.caption(f"Part of Speech: {daily_word['type']}")
 
+# Add the Audio Player right under the word
+audio_data = get_audio(daily_word["word"])
+st.audio(audio_data, format="audio/mp3")
+
 st.markdown(f"**Translation:** {daily_word['translation']}")
 st.markdown(f"**Pronunciation:** *{daily_word['pronunciation']}*")
 
 st.info(f"**Example Sentence:** {daily_word['example']}")
+
+# Audio for the example sentence (Optional, but great for learning!)
+with st.expander("Listen to example sentence"):
+    example_audio = get_audio(daily_word["example"])
+    st.audio(example_audio, format="audio/mp3")
 
 st.divider()
 st.write(f"📅 *Word for {today.strftime('%B %d, %Y')}*")
